@@ -2,13 +2,11 @@ class CarRecommendationsService
   LABEL_PERFECT = :perfect_match
   LABEL_GOOD = :good_match
   LABEL_SORT_MAP = {
-    LABEL_PERFECT: 0,
-    LABEL_GOOD: 1,
-    nil: 2
+    perfect_match: 0,
+    good_match: 1
   }
 
   def perform(params)
-    puts User.all.inspect
     @user = User.find(params[:user_id])
     @recommended_cars = Car.includes(:user_car_recommendations)
                            .select('cars.*', :rank_score)
@@ -17,7 +15,6 @@ class CarRecommendationsService
                                user_id: params[:user_id]
                              }
                            )
-
     cars = @recommended_cars.or(Car.all)
 
     if params[:query].present?
@@ -32,14 +29,26 @@ class CarRecommendationsService
       cars = cars.where('cars.price <= ?', params[:price_max])
     end
 
-    cars = cars.sort_by do |car|
-      label = get_label(car)
-      label_sort_value = LABEL_SORT_MAP[label]
+    cars = cars.map do |car|
+      car.attributes.slice('id', 'model', 'price', 'rank_score').merge({
+        label: get_label(car),
+        brand: {
+          id: car.brand.id,
+          name: car.brand.name
+        }
+      }).symbolize_keys
+    end
 
-      [label_sort_value, car.rank_score, car.price]
+    cars = cars.sort_by do |car|
+      label_sort_value = car[:label] ? LABEL_SORT_MAP[car[:label]] : 2
+      rank_score_sort_value = car[:rank_score] ? -car[:rank_score] : 1
+
+      [label_sort_value, rank_score_sort_value, car[:price]]
     end
 
     cars = Kaminari.paginate_array(cars).page(params[:page])
+
+    ap cars
 
     { errors: [], data: cars }
   end
