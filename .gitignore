@@ -27,6 +27,7 @@
 /config/master.key
 
 # Ignore asdf config file
-
 .tool-versions
 
+# Ignore database config file
+/config/database.yml
