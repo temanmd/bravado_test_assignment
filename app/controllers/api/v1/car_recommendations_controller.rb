@@ -9,7 +9,13 @@ module API
       private
 
       def actual_params
-        params.permit(:user_id, :page)
+        params.permit(
+          :user_id,
+          :query,
+          :price_min,
+          :price_max,
+          :page
+        )
       end
     end
   end
