@@ -30,13 +30,23 @@ class CarRecommendationsService
     end
 
     cars = cars.map do |car|
-      car.attributes.slice('id', 'model', 'price', 'rank_score').merge({
+      car = car.attributes.slice('id', 'model', 'price', 'rank_score').merge({
         label: get_label(car),
         brand: {
           id: car.brand.id,
           name: car.brand.name
         }
       }).symbolize_keys
+
+      # reorder keys
+      {
+        id: car[:id],
+        brand: car[:brand],
+        model: car[:model],
+        price: car[:price],
+        rank_score: car[:rank_score],
+        label: car[:label]
+      }
     end
 
     cars = cars.sort_by do |car|
@@ -47,8 +57,6 @@ class CarRecommendationsService
     end
 
     cars = Kaminari.paginate_array(cars).page(params[:page])
-
-    ap cars
 
     { errors: [], data: cars }
   end
