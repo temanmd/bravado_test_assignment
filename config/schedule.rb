@@ -19,6 +19,9 @@
 
 # Learn more: http://github.com/javan/whenever
 
-every 1.minute do
+set :output, "log/cron_log.log"
+ENV.each { |k, v| env(k, v) }
+
+every 1.day do
   runner 'FetchCarRecommendationsJob.perform_later'
 end
