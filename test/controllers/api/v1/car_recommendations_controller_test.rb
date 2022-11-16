@@ -24,4 +24,64 @@ class API::V1::CarRecommendationsControllerTest < ActionDispatch::IntegrationTes
       assert_equal expected_hash[index]['label'].to_s, car['label'].to_s
     end
   end
+
+  test 'get other page' do
+    get api_v1_car_recommendations_path(user_id: 1, page: 2)
+
+    assert_response :success
+
+    result = response.parsed_body
+    cars = result['data']
+    errors = result['errors']
+
+    assert_equal cars.length, 20
+    assert_equal cars.first['id'], 81
+  end
+
+  test 'get cars by query' do
+    # get only Maserati cars
+    get api_v1_car_recommendations_path(user_id: 1, query: 'ase')
+
+    assert_response :success
+
+    result = response.parsed_body
+    cars = result['data']
+    errors = result['errors']
+
+    assert_empty errors
+    cars.each do |car|
+      assert_equal 'Maserati', car['brand']['name']
+    end
+  end
+
+  test 'get cars by price_min' do
+    get api_v1_car_recommendations_path(user_id: 1, price_min: 45000)
+
+    assert_response :success
+
+    result = response.parsed_body
+    cars = result['data']
+    errors = result['errors']
+
+    assert_empty errors
+    cars.each do |car|
+      assert car['price'] >= 45000
+    end
+  end
+
+
+  test 'get cars by price_max' do
+    get api_v1_car_recommendations_path(user_id: 1, price_max: 14000)
+
+    assert_response :success
+
+    result = response.parsed_body
+    cars = result['data']
+    errors = result['errors']
+
+    assert_empty errors
+    cars.each do |car|
+      assert car['price'] <= 14000
+    end
+  end
 end
