@@ -11,8 +11,6 @@ class API::V1::CarRecommendationsControllerTest < ActionDispatch::IntegrationTes
     cars = result['data']
     errors = result['errors']
 
-    # ap cars
-
     assert_empty errors
     assert_equal cars.length, 3
     assert_equal 'Volkswagen', cars.first.dig(:brand, :name)
