@@ -2,8 +2,13 @@ module API
   module V1
     class CarRecommendationsController < ApplicationController
       def index
-        result = ::CarRecommendationsService.new(actual_params).perform()
-        render json: { data: result[:data], errors: result[:errors] }
+        contract_result = CarRecommendationContract.new.call(actual_params.to_h)
+        if contract_result.success?
+          result = ::CarRecommendationsService.new(actual_params).perform()
+          render json: { data: result[:data], errors: result[:errors] }
+        else
+          render json: { data: [], errors: contract_result.errors.to_h }
+        end
       end
 
       private

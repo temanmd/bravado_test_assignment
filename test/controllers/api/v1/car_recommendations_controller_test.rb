@@ -84,4 +84,17 @@ class API::V1::CarRecommendationsControllerTest < ActionDispatch::IntegrationTes
       assert car['price'] <= 14000
     end
   end
+
+  test 'get cars without user_id' do
+    get api_v1_car_recommendations_path
+
+    assert_response :success
+
+    result = response.parsed_body
+    cars = result['data']
+    errors = result['errors']
+
+    assert_empty cars
+    assert_equal ['is missing'], errors['user_id']
+  end
 end
