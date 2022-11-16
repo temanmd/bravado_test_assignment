@@ -12,6 +12,7 @@ class CarRecommendationsService
 
   def perform
     @user = User.find(@params[:user_id])
+    @user_preferred_brands = @user.preferred_brands.load
 
     cars = get_all_recommended_cars()
     cars = filter_cars(cars)
@@ -32,7 +33,7 @@ class CarRecommendationsService
                                user_id: @params[:user_id]
                              }
                            )
-    recommended_cars.or(Car.all)
+    recommended_cars.or(Car.all).includes(:brand)
   end
 
   def filter_cars(cars)
@@ -87,7 +88,7 @@ class CarRecommendationsService
   end
 
   def get_label(car)
-    match_preffered_brand = @user.preferred_brands.include?(car.brand)
+    match_preffered_brand = @user_preferred_brands.include?(car.brand)
     match_preffered_price = @user.preferred_price_range.include?(car.price)
 
     if match_preffered_brand
