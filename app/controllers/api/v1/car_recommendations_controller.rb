@@ -2,7 +2,7 @@ module API
   module V1
     class CarRecommendationsController < ApplicationController
       def index
-        result = ::CarRecommendationsService.new.perform(actual_params)
+        result = ::CarRecommendationsService.new(actual_params).perform()
         render json: { data: result[:data], errors: result[:errors] }
       end
 

@@ -6,30 +6,53 @@ class CarRecommendationsService
     good_match: 1
   }
 
-  def perform(params)
-    @user = User.find(params[:user_id])
-    @recommended_cars = Car.includes(:user_car_recommendations)
+  def initialize(params)
+    @params = params
+  end
+
+  def perform
+    @user = User.find(@params[:user_id])
+
+    cars = get_all_recommended_cars()
+    cars = filter_cars(cars)
+    cars = collect_cars_fields(cars)
+    cars = sort_cars(cars)
+    cars = paginate_cars(cars)
+
+    { errors: [], data: cars }
+  end
+
+  private
+
+  def get_all_recommended_cars
+    recommended_cars = Car.includes(:user_car_recommendations)
                            .select('cars.*', :rank_score)
                            .where(
                              user_car_recommendations: {
-                               user_id: params[:user_id]
+                               user_id: @params[:user_id]
                              }
                            )
-    cars = @recommended_cars.or(Car.all)
+    recommended_cars.or(Car.all)
+  end
 
-    if params[:query].present?
+  def filter_cars(cars)
+    if @params[:query].present?
       cars = cars.includes(:brand)
-                 .where('brands.name ILIKE ?', "%#{params[:query]}%")
+                 .where('brands.name ILIKE ?', "%#{@params[:query]}%")
                  .references(:brand)
     end
-    if params[:price_min].present?
-      cars = cars.where('cars.price >= ?', params[:price_min])
+    if @params[:price_min].present?
+      cars = cars.where('cars.price >= ?', @params[:price_min])
     end
-    if params[:price_max].present?
-      cars = cars.where('cars.price <= ?', params[:price_max])
+    if @params[:price_max].present?
+      cars = cars.where('cars.price <= ?', @params[:price_max])
     end
 
-    cars = cars.map do |car|
+    cars
+  end
+
+  def collect_cars_fields(cars)
+    cars.map do |car|
       car = car.attributes.slice('id', 'model', 'price', 'rank_score').merge({
         label: get_label(car),
         brand: {
@@ -48,20 +71,20 @@ class CarRecommendationsService
         label: car[:label]
       }
     end
+  end
 
-    cars = cars.sort_by do |car|
+  def sort_cars(cars)
+    cars.sort_by do |car|
       label_sort_value = car[:label] ? LABEL_SORT_MAP[car[:label]] : 2
       rank_score_sort_value = car[:rank_score] ? -car[:rank_score] : 1
 
       [label_sort_value, rank_score_sort_value, car[:price]]
     end
-
-    cars = Kaminari.paginate_array(cars).page(params[:page])
-
-    { errors: [], data: cars }
   end
 
-  private
+  def paginate_cars(cars)
+    Kaminari.paginate_array(cars).page(@params[:page])
+  end
 
   def get_label(car)
     match_preffered_brand = @user.preferred_brands.include?(car.brand)
