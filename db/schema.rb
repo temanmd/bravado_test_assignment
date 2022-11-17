@@ -10,55 +10,54 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_15_101248) do
-
+ActiveRecord::Schema.define(version: 20_221_115_101_248) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension 'plpgsql'
 
-  create_table "brands", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+  create_table 'brands', force: :cascade do |t|
+    t.string 'name'
+    t.datetime 'created_at', precision: 6, null: false
+    t.datetime 'updated_at', precision: 6, null: false
   end
 
-  create_table "cars", force: :cascade do |t|
-    t.string "model"
-    t.bigint "brand_id", null: false
-    t.integer "price"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["brand_id"], name: "index_cars_on_brand_id"
+  create_table 'cars', force: :cascade do |t|
+    t.string 'model'
+    t.bigint 'brand_id', null: false
+    t.integer 'price'
+    t.datetime 'created_at', precision: 6, null: false
+    t.datetime 'updated_at', precision: 6, null: false
+    t.index ['brand_id'], name: 'index_cars_on_brand_id'
   end
 
-  create_table "user_car_recommendations", force: :cascade do |t|
-    t.bigint "car_id", null: false
-    t.bigint "user_id", null: false
-    t.decimal "rank_score", precision: 5, scale: 4
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["car_id"], name: "index_user_car_recommendations_on_car_id"
-    t.index ["user_id"], name: "index_user_car_recommendations_on_user_id"
+  create_table 'user_car_recommendations', force: :cascade do |t|
+    t.bigint 'car_id', null: false
+    t.bigint 'user_id', null: false
+    t.decimal 'rank_score', precision: 5, scale: 4
+    t.datetime 'created_at', precision: 6, null: false
+    t.datetime 'updated_at', precision: 6, null: false
+    t.index ['car_id'], name: 'index_user_car_recommendations_on_car_id'
+    t.index ['user_id'], name: 'index_user_car_recommendations_on_user_id'
   end
 
-  create_table "user_preferred_brands", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "brand_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["brand_id"], name: "index_user_preferred_brands_on_brand_id"
-    t.index ["user_id"], name: "index_user_preferred_brands_on_user_id"
+  create_table 'user_preferred_brands', force: :cascade do |t|
+    t.bigint 'user_id', null: false
+    t.bigint 'brand_id', null: false
+    t.datetime 'created_at', precision: 6, null: false
+    t.datetime 'updated_at', precision: 6, null: false
+    t.index ['brand_id'], name: 'index_user_preferred_brands_on_brand_id'
+    t.index ['user_id'], name: 'index_user_preferred_brands_on_user_id'
   end
 
-  create_table "users", force: :cascade do |t|
-    t.string "email"
-    t.int8range "preferred_price_range"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+  create_table 'users', force: :cascade do |t|
+    t.string 'email'
+    t.int8range 'preferred_price_range'
+    t.datetime 'created_at', precision: 6, null: false
+    t.datetime 'updated_at', precision: 6, null: false
   end
 
-  add_foreign_key "cars", "brands"
-  add_foreign_key "user_car_recommendations", "cars"
-  add_foreign_key "user_car_recommendations", "users"
-  add_foreign_key "user_preferred_brands", "brands"
-  add_foreign_key "user_preferred_brands", "users"
+  add_foreign_key 'cars', 'brands'
+  add_foreign_key 'user_car_recommendations', 'cars'
+  add_foreign_key 'user_car_recommendations', 'users'
+  add_foreign_key 'user_preferred_brands', 'brands'
+  add_foreign_key 'user_preferred_brands', 'users'
 end

@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class CarRecommendationsService
   LABEL_PERFECT = :perfect_match
   LABEL_GOOD = :good_match
   LABEL_SORT_MAP = {
     0 => LABEL_PERFECT,
     1 => LABEL_GOOD
-  }
+  }.freeze
 
   def initialize(params)
     @params = params
@@ -13,7 +15,7 @@ class CarRecommendationsService
   def perform
     @user = User.find(@params[:user_id])
 
-    cars = get_all_recommended_cars()
+    cars = get_all_recommended_cars
     cars = filter_cars(cars)
     cars = sort_cars_sql(cars)
     cars = paginate_cars(cars)
@@ -25,16 +27,21 @@ class CarRecommendationsService
   private
 
   def get_all_recommended_cars
-    recommended_cars = Car.includes(:brand, user_car_recommendations: [user: :preferred_brands])
-                           .select(
-                             'cars.*', :rank_score,
-                             select_label_sql
-                           )
-                           .where(
-                             user_car_recommendations: {
-                               user_id: @params[:user_id]
-                             }
-                           )
+    recommended_cars = Car.includes(
+                            :brand,
+                            user_car_recommendations: [
+                              user: :preferred_brands
+                            ]
+                          )
+                          .select(
+                            'cars.*', :rank_score,
+                            select_label_sql
+                          )
+                          .where(
+                            user_car_recommendations: {
+                              user_id: @params[:user_id]
+                            }
+                          )
     recommended_cars.or(Car.all)
   end
 
@@ -45,10 +52,12 @@ class CarRecommendationsService
                  .references(:brand)
     end
     if @params[:price_min].present?
-      cars = cars.where('cars.price >= ?', @params[:price_min])
+      cars = cars.where('cars.price >= ?',
+                        @params[:price_min])
     end
     if @params[:price_max].present?
-      cars = cars.where('cars.price <= ?', @params[:price_max])
+      cars = cars.where('cars.price <= ?',
+                        @params[:price_max])
     end
 
     cars
@@ -56,12 +65,14 @@ class CarRecommendationsService
 
   def collect_cars_fields(cars)
     cars.map do |car|
-      car = car.attributes.slice('id', 'model', 'price', 'rank_score', 'label').merge({
-        brand: {
-          id: car.brand.id,
-          name: car.brand.name
-        }
-      }).symbolize_keys
+      car = car.attributes.slice(
+        'id', 'model', 'price', 'rank_score', 'label'
+      ).merge({
+                brand: {
+                  id: car.brand.id,
+                  name: car.brand.name
+                }
+              }).symbolize_keys
 
       # reorder keys
       {
@@ -88,14 +99,15 @@ class CarRecommendationsService
 
   def select_label_sql
     match_preferred_brands_sql = "brands.id = ANY (#{preferred_brand_ids_sql})"
-    match_preffered_price_sql = "int8range(#{preferred_price_borders}) @> cars.price::int8"
+    match_preffered_price_sql = "int8range(#{preferred_price_borders}) @> "\
+                                'cars.price::int8'
 
     "CASE WHEN #{match_preferred_brands_sql} AND "\
               "#{match_preffered_price_sql} "\
-              "THEN 0 "\
+              'THEN 0 '\
          "WHEN #{match_preferred_brands_sql} THEN 1 "\
-         "ELSE 2 "\
-    "END AS label"
+         'ELSE 2 '\
+    'END AS label'
   end
 
   def sort_cars_sql(cars)

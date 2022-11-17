@@ -1,0 +1,31 @@
+require:
+  - rubocop-rails
+
+# Style/Documentation:
+#   Enabled: false
+Layout/LineLength:
+  Max: 80
+
+AllCops:
+  # Cop names are not displayed in offense messages by default. Change behavior
+  # by overriding DisplayCopNames, or by giving the -D/--display-cop-names
+  # option.
+  DisplayCopNames: true
+  # Style guide URLs are not displayed in offense messages by default. Change
+  # behavior by overriding DisplayStyleGuide, or by giving the
+  # -S/--display-style-guide option.
+  DisplayStyleGuide: true
+  # Extra details are not displayed in offense messages by default. Change
+  # behavior by overriding ExtraDetails, or by giving the
+  # -E/--extra-details option.
+  ExtraDetails: true
+  TargetRubyVersion: 2.7.2
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'vagrant/**/*'
+    - 'tmp/**/*'
+    - 'script/**/*'
+    - 'cookbooks/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'

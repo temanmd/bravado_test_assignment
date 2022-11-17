@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class FetchCarRecommendationsJob < ApplicationJob
   queue_as :default
 
-  def perform(*args)
-    api_url = "https://bravado-images-production.s3.amazonaws.com"\
-            "/recomended_cars.json?user_id="
+  def perform(*_args)
+    api_url = 'https://bravado-images-production.s3.amazonaws.com'\
+            '/recomended_cars.json?user_id='
 
     User.find_each do |user|
       ActiveRecord::Base.transaction do
